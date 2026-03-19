@@ -1,10 +1,11 @@
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_PROJETO.firebasestorage.app",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID",
+  apiKey: "AIzaSyACU8Slf3gDQricK3UcI10NFzKJGmk2x0I",
+  authDomain: "milreis.firebaseapp.com",
+  projectId: "milreis",
+  storageBucket: "milreis.firebasestorage.app",
+  messagingSenderId: "118772353218",
+  appId: "1:118772353218:web:4d391a30549075be2f935b",
+  measurementId: "G-HDMRCVFLY9"
 };
 
 firebase.initializeApp(firebaseConfig);
