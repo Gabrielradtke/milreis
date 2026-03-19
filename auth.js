@@ -5,46 +5,35 @@ const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 const authMessage = document.getElementById("authMessage");
 
-const USERS_KEY = "controle_gastos_users";
-const SESSION_KEY = "controle_gastos_session";
-
-checkSession();
-
 loginTab.addEventListener("click", () => setMode("login"));
 registerTab.addEventListener("click", () => setMode("register"));
 
-loginForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-  const password = document.getElementById("loginPassword").value.trim();
-
-  const users = getUsers();
-  const user = users.find((item) => item.email === email);
-
-  if (!user || user.password !== password) {
-    showMessage("E-mail ou senha inválidos.", "error");
-    return;
-  }
-
-  saveSession({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-  });
-
-  showMessage("Login realizado com sucesso.", "success");
-
-  setTimeout(() => {
+auth.onAuthStateChanged((user) => {
+  if (user) {
     window.location.href = "index.html";
-  }, 500);
+  }
 });
 
-registerForm.addEventListener("submit", (event) => {
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    showMessage("Login realizado com sucesso.", "success");
+    window.location.href = "index.html";
+  } catch (error) {
+    showMessage(getFirebaseErrorMessage(error.code), "error");
+  }
+});
+
+registerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const name = document.getElementById("registerName").value.trim();
-  const email = document.getElementById("registerEmail").value.trim().toLowerCase();
+  const email = document.getElementById("registerEmail").value.trim();
   const password = document.getElementById("registerPassword").value.trim();
   const confirmPassword = document.getElementById("registerConfirmPassword").value.trim();
 
@@ -53,8 +42,8 @@ registerForm.addEventListener("submit", (event) => {
     return;
   }
 
-  if (password.length < 4) {
-    showMessage("A senha deve ter no mínimo 4 caracteres.", "error");
+  if (password.length < 6) {
+    showMessage("A senha deve ter no mínimo 6 caracteres.", "error");
     return;
   }
 
@@ -63,36 +52,20 @@ registerForm.addEventListener("submit", (event) => {
     return;
   }
 
-  const users = getUsers();
-  const emailAlreadyExists = users.some((item) => item.email === email);
+  try {
+    const credential = await auth.createUserWithEmailAndPassword(email, password);
 
-  if (emailAlreadyExists) {
-    showMessage("Já existe uma conta com este e-mail.", "error");
-    return;
-  }
+    await db.collection("users").doc(credential.user.uid).set({
+      name,
+      email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
 
-  const newUser = {
-    id: generateId(),
-    name,
-    email,
-    password,
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-
-  saveSession({
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-  });
-
-  showMessage("Cadastro criado com sucesso.", "success");
-
-  setTimeout(() => {
+    showMessage("Cadastro criado com sucesso.", "success");
     window.location.href = "index.html";
-  }, 500);
+  } catch (error) {
+    showMessage(getFirebaseErrorMessage(error.code), "error");
+  }
 });
 
 function setMode(mode) {
@@ -112,26 +85,6 @@ function setMode(mode) {
   loginForm.classList.add("hidden");
 }
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-}
-
-function saveSession(sessionData) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-}
-
-function checkSession() {
-  const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-
-  if (session) {
-    window.location.href = "index.html";
-  }
-}
-
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-}
-
 function showMessage(message, type) {
   authMessage.textContent = message;
   authMessage.className = `auth-message ${type}`;
@@ -140,4 +93,18 @@ function showMessage(message, type) {
 function clearMessage() {
   authMessage.textContent = "";
   authMessage.className = "auth-message";
+}
+
+function getFirebaseErrorMessage(code) {
+  const map = {
+    "auth/invalid-email": "E-mail inválido.",
+    "auth/user-disabled": "Usuário desativado.",
+    "auth/user-not-found": "Usuário não encontrado.",
+    "auth/wrong-password": "Senha incorreta.",
+    "auth/email-already-in-use": "Este e-mail já está em uso.",
+    "auth/weak-password": "Senha fraca. Use uma senha mais forte.",
+    "auth/invalid-credential": "Credenciais inválidas.",
+  };
+
+  return map[code] || "Não foi possível concluir a operação.";
 }
