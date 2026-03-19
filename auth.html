@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acesso • Controle de Gastos</title>
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <main class="auth-shell">
+    <section class="auth-card">
+      <div class="brand">
+        <small>Controle de Gastos</small>
+        <h1>Entrar na sua conta</h1>
+        <p>Faça login ou crie seu cadastro para acessar seu app financeiro.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="loginTab" class="tab-btn active" type="button">Login</button>
+        <button id="registerTab" class="tab-btn" type="button">Cadastro</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" required />
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" type="password" placeholder="Digite sua senha" required />
+        </div>
+
+        <button class="primary-btn" type="submit">Entrar</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <div class="field">
+          <label for="registerName">Nome</label>
+          <input id="registerName" type="text" placeholder="Seu nome" required />
+        </div>
+
+        <div class="field">
+          <label for="registerEmail">E-mail</label>
+          <input id="registerEmail" type="email" placeholder="seuemail@exemplo.com" required />
+        </div>
+
+        <div class="field">
+          <label for="registerPassword">Senha</label>
+          <input id="registerPassword" type="password" placeholder="Crie uma senha" required />
+        </div>
+
+        <div class="field">
+          <label for="registerConfirmPassword">Confirmar senha</label>
+          <input id="registerConfirmPassword" type="password" placeholder="Repita a senha" required />
+        </div>
+
+        <button class="primary-btn" type="submit">Criar conta</button>
+      </form>
+
+      <p id="authMessage" class="auth-message"></p>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>

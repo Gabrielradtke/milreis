@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Gastos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="phone-shell">
+    <div class="status-bar">Controle Financeiro • mobile first</div>
+
+    <main class="app">
+      <header class="topbar">
+        <div class="month-box">
+          <small>Mês atual</small>
+          <h1 id="monthTitle">Março 2026</h1>
+        </div>
+
+        <div class="topbar-right">
+          <div class="avatar" id="userAvatar">GR</div>
+          <button id="logoutBtn" class="logout-btn" type="button">Sair</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <section class="hero-card">
+          <small>Saldo disponível</small>
+          <h2 id="balanceMain">R$ 0,00</h2>
+
+          <div class="hero-grid">
+            <div class="mini-stat">
+              <span>Receitas</span>
+              <strong id="incomeMain">R$ 0,00</strong>
+            </div>
+            <div class="mini-stat">
+              <span>Despesas</span>
+              <strong id="expenseMain">R$ 0,00</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h3>Resumo rápido</h3>
+            <span class="muted">mês a mês</span>
+          </div>
+
+          <div class="quick-grid">
+            <div class="quick-card income">
+              <span>Total recebido</span>
+              <strong id="incomeQuick">R$ 0,00</strong>
+            </div>
+            <div class="quick-card expense">
+              <span>Total gasto</span>
+              <strong id="expenseQuick">R$ 0,00</strong>
+            </div>
+            <div class="quick-card balance">
+              <span>Sobra na conta</span>
+              <strong id="balanceQuick">R$ 0,00</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h3>Novo lançamento</h3>
+            <span class="muted">cadastro diário</span>
+          </div>
+
+          <form id="transactionForm" class="form-grid">
+            <div class="field">
+              <label>Tipo</label>
+              <div class="segmented">
+                <button type="button" class="type-btn active income" data-type="receita">Receita</button>
+                <button type="button" class="type-btn expense" data-type="despesa">Despesa</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="description">Descrição</label>
+              <input
+                id="description"
+                name="description"
+                type="text"
+                placeholder="Ex.: Salário, mercado, aluguel"
+                required
+              />
+            </div>
+
+            <div class="row-2">
+              <div class="field">
+                <label for="amount">Valor</label>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0,00"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="date">Data</label>
+                <input id="date" name="date" type="date" required />
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div class="field">
+                <label for="category">Categoria</label>
+                <select id="category" name="category" required>
+                  <option value="">Selecione</option>
+                  <option>Salário</option>
+                  <option>Freelance</option>
+                  <option>Aluguel</option>
+                  <option>Condomínio</option>
+                  <option>Luz</option>
+                  <option>Internet</option>
+                  <option>Mercado</option>
+                  <option>Transporte</option>
+                  <option>Faculdade</option>
+                  <option>Lazer</option>
+                  <option>Cartão</option>
+                  <option>Outros</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="paymentMethod">Pagamento</label>
+                <select id="paymentMethod" name="paymentMethod" required>
+                  <option value="">Selecione</option>
+                  <option>Pix</option>
+                  <option>Débito</option>
+                  <option>Crédito</option>
+                  <option>Dinheiro</option>
+                  <option>Transferência</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="primary-btn" type="submit">Salvar lançamento</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <h3>Últimos lançamentos</h3>
+            <span class="muted" id="transactionCount">0 itens</span>
+          </div>
+
+          <div id="transactionList" class="list"></div>
+        </section>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="nav-item active" type="button">Início</button>
+        <button class="nav-item" type="button">Lançar</button>
+        <button class="nav-item" type="button">Categorias</button>
+        <button class="nav-item" type="button">Relatórios</button>
+      </nav>
+    </main>
+  </div>
+
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon">!</div>
+
+      <h3>Confirmar exclusão</h3>
+      <p id="deleteModalText">Tem certeza que deseja excluir este lançamento?</p>
+
+      <div class="modal-actions">
+        <button id="cancelDeleteBtn" type="button" class="modal-btn secondary">
+          Cancelar
+        </button>
+        <button id="confirmDeleteBtn" type="button" class="modal-btn danger">
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
