@@ -196,6 +196,11 @@ body {
   font-size: 12px;
 }
 
+.month-filter {
+  display: grid;
+  gap: 10px;
+}
+
 .form-grid {
   display: grid;
   gap: 10px;
@@ -292,6 +297,12 @@ body {
   color: var(--text);
 }
 
+.compact-btn {
+  min-height: 44px;
+  border-radius: 14px;
+  font-size: 14px;
+}
+
 .hidden {
   display: none !important;
 }
@@ -376,11 +387,11 @@ body {
 
 .action-btn {
   border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
   transition: 0.2s ease;

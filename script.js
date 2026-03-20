@@ -3,6 +3,8 @@ const transactionList = document.getElementById("transactionList");
 const transactionCount = document.getElementById("transactionCount");
 const dateInput = document.getElementById("date");
 const monthTitle = document.getElementById("monthTitle");
+const monthFilter = document.getElementById("monthFilter");
+const currentMonthBtn = document.getElementById("currentMonthBtn");
 
 const balanceMain = document.getElementById("balanceMain");
 const incomeMain = document.getElementById("incomeMain");
@@ -25,10 +27,13 @@ const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 let currentType = "receita";
 let currentUser = null;
 let transactions = [];
+let filteredTransactions = [];
 let transactionIdToDelete = null;
 let editingTransactionId = null;
+let selectedMonth = getCurrentMonthValue();
 
 dateInput.value = getToday();
+monthFilter.value = selectedMonth;
 
 auth.onAuthStateChanged(async (user) => {
   if (!user) {
@@ -46,6 +51,19 @@ typeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setType(button.dataset.type);
   });
+});
+
+monthFilter.addEventListener("change", () => {
+  selectedMonth = monthFilter.value || getCurrentMonthValue();
+  applyMonthFilter();
+  renderAll();
+});
+
+currentMonthBtn.addEventListener("click", () => {
+  selectedMonth = getCurrentMonthValue();
+  monthFilter.value = selectedMonth;
+  applyMonthFilter();
+  renderAll();
 });
 
 form.addEventListener("submit", async (event) => {
@@ -92,6 +110,11 @@ form.addEventListener("submit", async (event) => {
     form.reset();
     dateInput.value = getToday();
     setType("receita");
+
+    if (date) {
+      selectedMonth = date.slice(0, 7);
+      monthFilter.value = selectedMonth;
+    }
   } catch (error) {
     console.error("Erro ao salvar lançamento:", error);
     alert("Não foi possível salvar o lançamento.");
@@ -150,10 +173,22 @@ function listenTransactions() {
         ...doc.data(),
       }));
 
+      if (!monthFilter.value) {
+        monthFilter.value = selectedMonth;
+      }
+
+      applyMonthFilter();
       renderAll();
     }, (error) => {
       console.error("Erro ao ouvir lançamentos:", error);
     });
+}
+
+function applyMonthFilter() {
+  filteredTransactions = transactions.filter((item) => {
+    if (!item.date) return false;
+    return item.date.slice(0, 7) === selectedMonth;
+  });
 }
 
 async function ensureUserProfile(user) {
@@ -250,6 +285,13 @@ function getToday() {
   return `${year}-${month}-${day}`;
 }
 
+function getCurrentMonthValue() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 function formatCurrency(value) {
   return Number(value).toLocaleString("pt-BR", {
     style: "currency",
@@ -262,8 +304,10 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-function getMonthName(dateString) {
-  const date = new Date(`${dateString}T12:00:00`);
+function getMonthName(monthValue) {
+  const [year, month] = monthValue.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+
   return date.toLocaleDateString("pt-BR", {
     month: "long",
     year: "numeric",
@@ -271,11 +315,11 @@ function getMonthName(dateString) {
 }
 
 function renderSummary() {
-  const income = transactions
+  const income = filteredTransactions
     .filter((item) => item.type === "receita")
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
-  const expense = transactions
+  const expense = filteredTransactions
     .filter((item) => item.type === "despesa")
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
@@ -287,20 +331,24 @@ function renderSummary() {
 }
 
 function renderTransactions() {
-  if (transactions.length === 0) {
+  const monthLabel = getMonthName(selectedMonth);
+  monthTitle.textContent =
+    monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+
+  if (filteredTransactions.length === 0) {
     transactionList.innerHTML =
-      '<p class="empty">Nenhum lançamento ainda. Cadastre o primeiro acima.</p>';
+      '<p class="empty">Nenhum lançamento encontrado para este mês.</p>';
     transactionCount.textContent = "0 itens";
-    monthTitle.textContent = "Sem lançamentos";
     return;
   }
 
-  const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const latestDate = sorted[0].date;
-  const monthLabel = getMonthName(latestDate);
+  const sorted = [...filteredTransactions].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
 
-  monthTitle.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
-  transactionCount.textContent = `${sorted.length} ${sorted.length === 1 ? "item" : "itens"}`;
+  transactionCount.textContent = `${sorted.length} ${
+    sorted.length === 1 ? "item" : "itens"
+  }`;
 
   transactionList.innerHTML = sorted
     .map((item) => {
