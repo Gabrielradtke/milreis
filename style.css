@@ -196,43 +196,6 @@ body {
   font-size: 12px;
 }
 
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.quick-card {
-  padding: 12px;
-  border-radius: var(--radius-lg);
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  text-align: center;
-}
-
-.quick-card span {
-  display: block;
-  font-size: 11px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.quick-card strong {
-  font-size: 14px;
-}
-
-.quick-card.income strong {
-  color: var(--income);
-}
-
-.quick-card.expense strong {
-  color: var(--expense);
-}
-
-.quick-card.balance strong {
-  color: var(--primary);
-}
-
 .form-grid {
   display: grid;
   gap: 10px;
@@ -303,16 +266,34 @@ body {
   color: var(--expense);
 }
 
-.primary-btn {
+.form-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.primary-btn,
+.secondary-btn {
   border: none;
   min-height: 52px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--primary), #3b82f6);
-  color: white;
   font-size: 15px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, var(--primary), #3b82f6);
+  color: white;
   box-shadow: 0 14px 24px rgba(37, 99, 235, 0.2);
+}
+
+.secondary-btn {
+  background: #eef2f7;
+  color: var(--text);
+}
+
+.hidden {
+  display: none !important;
 }
 
 .list {
@@ -323,7 +304,7 @@ body {
 .transaction {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 12px;
   border: 1px solid var(--border);
   background: #fff;
@@ -342,10 +323,12 @@ body {
 
 .icon.income {
   background: rgba(23, 163, 74, 0.12);
+  color: var(--income);
 }
 
 .icon.expense {
   background: rgba(229, 72, 77, 0.12);
+  color: var(--expense);
 }
 
 .transaction-info {
@@ -386,18 +369,36 @@ body {
   color: var(--expense);
 }
 
-.delete-btn {
+.transaction-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.action-btn {
   border: none;
-  background: rgba(229, 72, 77, 0.1);
-  color: var(--expense);
-  min-width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
   transition: 0.2s ease;
+}
+
+.edit-btn {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+.edit-btn:hover {
+  background: rgba(37, 99, 235, 0.16);
+  transform: scale(1.04);
+}
+
+.delete-btn {
+  background: rgba(229, 72, 77, 0.1);
+  color: var(--expense);
 }
 
 .delete-btn:hover {
@@ -410,31 +411,6 @@ body {
   color: var(--muted);
   font-size: 13px;
   padding: 18px 8px 6px;
-}
-
-.bottom-nav {
-  border-top: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.92);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 10px;
-  gap: 6px;
-}
-
-.nav-item {
-  text-align: center;
-  font-size: 11px;
-  color: var(--muted);
-  padding: 8px 4px;
-  border-radius: 14px;
-  font-weight: 700;
-  background: transparent;
-  border: none;
-}
-
-.nav-item.active {
-  background: var(--primary-soft);
-  color: var(--primary);
 }
 
 .modal-overlay {
@@ -550,8 +526,7 @@ body {
     font-size: 28px;
   }
 
-  .row-2,
-  .quick-grid {
+  .row-2 {
     grid-template-columns: 1fr;
   }
 
@@ -562,5 +537,13 @@ body {
   .topbar-right {
     flex-direction: column;
     align-items: flex-end;
+  }
+
+  .transaction {
+    align-items: flex-start;
+  }
+
+  .transaction-actions {
+    grid-auto-flow: column;
   }
 }

@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="phone-shell">
-    <div class="status-bar">Desenvolvido por @gabrielradtke</div>
+    <div class="status-bar">Controle Financeiro • mobile first</div>
 
     <main class="app">
       <header class="topbar">
@@ -42,30 +42,8 @@
 
         <section class="card">
           <div class="card-header">
-            <h3>Resumo rápido</h3>
-            <span class="muted">mês a mês</span>
-          </div>
-
-          <div class="quick-grid">
-            <div class="quick-card income">
-              <span>Total recebido</span>
-              <strong id="incomeQuick">R$ 0,00</strong>
-            </div>
-            <div class="quick-card expense">
-              <span>Total gasto</span>
-              <strong id="expenseQuick">R$ 0,00</strong>
-            </div>
-            <div class="quick-card balance">
-              <span>Sobra na conta</span>
-              <strong id="balanceQuick">R$ 0,00</strong>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-header">
-            <h3>Novo lançamento</h3>
-            <span class="muted">cadastro diário</span>
+            <h3 id="formTitle">Novo lançamento</h3>
+            <span class="muted" id="formModeText">cadastro diário</span>
           </div>
 
           <form id="transactionForm" class="form-grid">
@@ -79,13 +57,27 @@
 
             <div class="field">
               <label for="description">Descrição</label>
-              <input id="description" name="description" type="text" placeholder="Ex.: Salário, mercado, aluguel" required />
+              <input
+                id="description"
+                name="description"
+                type="text"
+                placeholder="Ex.: Salário, mercado, aluguel"
+                required
+              />
             </div>
 
             <div class="row-2">
               <div class="field">
                 <label for="amount">Valor</label>
-                <input id="amount" name="amount" type="number" min="0" step="0.01" placeholder="0,00" required />
+                <input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0,00"
+                  required
+                />
               </div>
 
               <div class="field">
@@ -122,13 +114,15 @@
                   <option>Débito</option>
                   <option>Crédito</option>
                   <option>Dinheiro</option>
-                  <option>Boleto</option>
                   <option>Transferência</option>
                 </select>
               </div>
             </div>
 
-            <button class="primary-btn" type="submit">Salvar lançamento</button>
+            <div class="form-actions">
+              <button id="submitBtn" class="primary-btn" type="submit">Salvar lançamento</button>
+              <button id="cancelEditBtn" class="secondary-btn hidden" type="button">Cancelar edição</button>
+            </div>
           </form>
         </section>
 
@@ -149,6 +143,7 @@
       <div class="modal-icon">!</div>
       <h3>Confirmar exclusão</h3>
       <p id="deleteModalText">Tem certeza que deseja excluir este lançamento?</p>
+
       <div class="modal-actions">
         <button id="cancelDeleteBtn" type="button" class="modal-btn secondary">Cancelar</button>
         <button id="confirmDeleteBtn" type="button" class="modal-btn danger">Excluir</button>

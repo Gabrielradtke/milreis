@@ -7,12 +7,14 @@ const monthTitle = document.getElementById("monthTitle");
 const balanceMain = document.getElementById("balanceMain");
 const incomeMain = document.getElementById("incomeMain");
 const expenseMain = document.getElementById("expenseMain");
-const incomeQuick = document.getElementById("incomeQuick");
-const expenseQuick = document.getElementById("expenseQuick");
-const balanceQuick = document.getElementById("balanceQuick");
 
 const logoutBtn = document.getElementById("logoutBtn");
 const userAvatar = document.getElementById("userAvatar");
+
+const formTitle = document.getElementById("formTitle");
+const formModeText = document.getElementById("formModeText");
+const submitBtn = document.getElementById("submitBtn");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
 
 const typeButtons = document.querySelectorAll(".type-btn");
 const deleteModal = document.getElementById("deleteModal");
@@ -24,6 +26,7 @@ let currentType = "receita";
 let currentUser = null;
 let transactions = [];
 let transactionIdToDelete = null;
+let editingTransactionId = null;
 
 dateInput.value = getToday();
 
@@ -35,7 +38,6 @@ auth.onAuthStateChanged(async (user) => {
 
   currentUser = user;
   setUserAvatar(user);
-
   await ensureUserProfile(user);
   listenTransactions();
 });
@@ -61,7 +63,7 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
-  await db.collection("transactions").add({
+  const payload = {
     userId: currentUser.uid,
     type: currentType,
     description,
@@ -69,17 +71,40 @@ form.addEventListener("submit", async (event) => {
     date,
     category,
     paymentMethod,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  });
+  };
 
-  form.reset();
-  dateInput.value = getToday();
-  setType("receita");
+  try {
+    if (editingTransactionId) {
+      await db.collection("transactions").doc(editingTransactionId).update({
+        ...payload,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+
+      resetFormMode();
+      return;
+    }
+
+    await db.collection("transactions").add({
+      ...payload,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    form.reset();
+    dateInput.value = getToday();
+    setType("receita");
+  } catch (error) {
+    console.error("Erro ao salvar lançamento:", error);
+    alert("Não foi possível salvar o lançamento.");
+  }
 });
 
 logoutBtn.addEventListener("click", async () => {
   await auth.signOut();
   window.location.href = "auth.html";
+});
+
+cancelEditBtn.addEventListener("click", () => {
+  resetFormMode();
 });
 
 cancelDeleteBtn.addEventListener("click", closeDeleteModal);
@@ -90,8 +115,18 @@ confirmDeleteBtn.addEventListener("click", async () => {
     return;
   }
 
-  await db.collection("transactions").doc(transactionIdToDelete).delete();
-  closeDeleteModal();
+  try {
+    await db.collection("transactions").doc(transactionIdToDelete).delete();
+
+    if (editingTransactionId === transactionIdToDelete) {
+      resetFormMode();
+    }
+
+    closeDeleteModal();
+  } catch (error) {
+    console.error("Erro ao excluir lançamento:", error);
+    alert("Não foi possível excluir o lançamento.");
+  }
 });
 
 deleteModal.addEventListener("click", (event) => {
@@ -116,6 +151,8 @@ function listenTransactions() {
       }));
 
       renderAll();
+    }, (error) => {
+      console.error("Erro ao ouvir lançamentos:", error);
     });
 }
 
@@ -134,6 +171,7 @@ async function ensureUserProfile(user) {
 
 function setUserAvatar(user) {
   const source = user.displayName || user.email || "U";
+
   const initials = source
     .split(" ")
     .map((part) => part[0])
@@ -149,10 +187,45 @@ function setType(type) {
 
   typeButtons.forEach((button) => {
     button.classList.remove("active");
+
     if (button.dataset.type === type) {
       button.classList.add("active");
     }
   });
+}
+
+function editTransaction(id) {
+  const transaction = transactions.find((item) => item.id === id);
+  if (!transaction) return;
+
+  editingTransactionId = id;
+
+  form.description.value = transaction.description || "";
+  form.amount.value = transaction.amount || "";
+  form.date.value = transaction.date || "";
+  form.category.value = transaction.category || "";
+  form.paymentMethod.value = transaction.paymentMethod || "";
+
+  setType(transaction.type || "receita");
+
+  formTitle.textContent = "Editar lançamento";
+  formModeText.textContent = "modo edição";
+  submitBtn.textContent = "Atualizar lançamento";
+  cancelEditBtn.classList.remove("hidden");
+
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetFormMode() {
+  editingTransactionId = null;
+  form.reset();
+  dateInput.value = getToday();
+  setType("receita");
+
+  formTitle.textContent = "Novo lançamento";
+  formModeText.textContent = "cadastro diário";
+  submitBtn.textContent = "Salvar lançamento";
+  cancelEditBtn.classList.add("hidden");
 }
 
 function askDeleteTransaction(id) {
@@ -211,15 +284,12 @@ function renderSummary() {
   incomeMain.textContent = formatCurrency(income);
   expenseMain.textContent = formatCurrency(expense);
   balanceMain.textContent = formatCurrency(balance);
-
-  incomeQuick.textContent = formatCurrency(income);
-  expenseQuick.textContent = formatCurrency(expense);
-  balanceQuick.textContent = formatCurrency(balance);
 }
 
 function renderTransactions() {
   if (transactions.length === 0) {
-    transactionList.innerHTML = '<p class="empty">Nenhum lançamento ainda. Cadastre o primeiro acima.</p>';
+    transactionList.innerHTML =
+      '<p class="empty">Nenhum lançamento ainda. Cadastre o primeiro acima.</p>';
     transactionCount.textContent = "0 itens";
     monthTitle.textContent = "Sem lançamentos";
     return;
@@ -232,40 +302,57 @@ function renderTransactions() {
   monthTitle.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
   transactionCount.textContent = `${sorted.length} ${sorted.length === 1 ? "item" : "itens"}`;
 
-  transactionList.innerHTML = sorted.map((item) => {
-    const icon = item.type === "receita" ? "↑" : "↓";
-    const valueClass = item.type === "receita" ? "income" : "expense";
-    const signal = item.type === "receita" ? "+" : "-";
+  transactionList.innerHTML = sorted
+    .map((item) => {
+      const icon = item.type === "receita" ? "↑" : "↓";
+      const valueClass = item.type === "receita" ? "income" : "expense";
+      const signal = item.type === "receita" ? "+" : "-";
 
-    return `
-      <article class="transaction">
-        <div class="icon ${valueClass}">${icon}</div>
+      return `
+        <article class="transaction">
+          <div class="icon ${valueClass}">${icon}</div>
 
-        <div class="transaction-info">
-          <strong>${item.description}</strong>
-          <small>${item.category} • ${formatDate(item.date)}</small>
-        </div>
+          <div class="transaction-info">
+            <strong>${item.description}</strong>
+            <small>${item.category} • ${formatDate(item.date)}</small>
+          </div>
 
-        <div class="transaction-value">
-          <strong class="${valueClass}">${signal} ${formatCurrency(item.amount)}</strong>
-          <small>${item.paymentMethod}</small>
-        </div>
+          <div class="transaction-value">
+            <strong class="${valueClass}">${signal} ${formatCurrency(item.amount)}</strong>
+            <small>${item.paymentMethod}</small>
+          </div>
 
-        <button
-          class="delete-btn"
-          type="button"
-          onclick="askDeleteTransaction('${item.id}')"
-          title="Excluir lançamento"
-          aria-label="Excluir lançamento"
-        >
-          ×
-        </button>
-      </article>
-    `;
-  }).join("");
+          <div class="transaction-actions">
+            <button
+              class="action-btn edit-btn"
+              type="button"
+              onclick="editTransaction('${item.id}')"
+              title="Editar lançamento"
+              aria-label="Editar lançamento"
+            >
+              ✎
+            </button>
+
+            <button
+              class="action-btn delete-btn"
+              type="button"
+              onclick="askDeleteTransaction('${item.id}')"
+              title="Excluir lançamento"
+              aria-label="Excluir lançamento"
+            >
+              ×
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 function renderAll() {
   renderSummary();
   renderTransactions();
 }
+
+window.editTransaction = editTransaction;
+window.askDeleteTransaction = askDeleteTransaction;
