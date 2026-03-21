@@ -558,3 +558,8 @@ body {
     grid-auto-flow: column;
   }
 }
+#monthFilter:disabled,
+#currentMonthBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
