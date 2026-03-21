@@ -248,7 +248,7 @@ function updateViewModeUI() {
   currentMonthBtn.style.cursor = isAll ? "not-allowed" : "pointer";
 
   if (periodHint) {
-    periodHint.textContent = isAll ? "desde o início" : "visão mensal";
+    periodHint.textContent = isAll ? "Desde o início" : "Visão mensal";
   }
 }
 
