@@ -1,198 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Controle de Gastos</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="phone-shell">
-    <div class="status-bar">Controle Financeiro • mobile first</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Controle de Gastos</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="phone-shell">
+      <div class="status-bar">Controle Financeiro • mobile first</div>
 
-    <main class="app">
-      <header class="topbar">
-        <div class="month-box">
-          <small>Período</small>
-          <h1 id="monthTitle">Carregando...</h1>
-        </div>
-
-        <div class="topbar-right">
-          <div class="avatar" id="userAvatar">--</div>
-          <button id="logoutBtn" class="logout-btn" type="button">Sair</button>
-        </div>
-      </header>
-
-      <section class="content">
-        <section class="hero-card">
-          <small id="balanceLabel">Saldo geral</small>
-          <h2 id="balanceMain">R$ 0,00</h2>
-
-          <div class="hero-grid">
-            <div class="mini-stat">
-              <span>Receitas do período</span>
-              <strong id="incomeMain">R$ 0,00</strong>
-            </div>
-            <div class="mini-stat">
-              <span>Despesas do período</span>
-              <strong id="expenseMain">R$ 0,00</strong>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-header">
-            <h3>Filtro do período</h3>
-            <span class="muted" id="periodHint">visão mensal</span>
+      <main class="app">
+        <header class="topbar">
+          <div class="month-box">
+            <small>Período</small>
+            <h1 id="monthTitle">Carregando...</h1>
           </div>
 
-          <div class="month-filter">
-            <div class="field">
-              <label for="viewMode">Tipo de visão</label>
-              <select id="viewMode">
-                <option value="monthly">Mensal</option>
-                <option value="all">Desde o início</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="monthFilter">Selecionar mês</label>
-              <input id="monthFilter" type="month" />
-            </div>
-
-            <button id="currentMonthBtn" class="secondary-btn compact-btn" type="button">
-              Mês atual
+          <div class="topbar-right">
+            <div class="avatar" id="userAvatar">--</div>
+            <button id="logoutBtn" class="logout-btn" type="button">
+              Sair
             </button>
           </div>
-        </section>
+        </header>
 
-        <section class="card">
-          <div class="card-header">
-            <h3>Resumo do período</h3>
-            <span class="muted">receitas x despesas</span>
-          </div>
+        <section class="content">
+          <section class="hero-card">
+            <small id="balanceLabel">Saldo geral</small>
+            <h2 id="balanceMain">R$ 0,00</h2>
 
-          <div class="chart-wrap">
-            <canvas id="chartMes"></canvas>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-header">
-            <h3 id="formTitle">Novo lançamento</h3>
-            <span class="muted" id="formModeText">cadastro diário</span>
-          </div>
-
-          <form id="transactionForm" class="form-grid">
-            <div class="field">
-              <label>Tipo</label>
-              <div class="segmented">
-                <button type="button" class="type-btn active income" data-type="receita">Receita</button>
-                <button type="button" class="type-btn expense" data-type="despesa">Despesa</button>
+            <div class="hero-grid">
+              <div class="mini-stat">
+                <span>Receitas do período</span>
+                <strong id="incomeMain">R$ 0,00</strong>
+              </div>
+              <div class="mini-stat">
+                <span>Despesas do período</span>
+                <strong id="expenseMain">R$ 0,00</strong>
               </div>
             </div>
+          </section>
 
-            <div class="field">
-              <label for="description">Descrição</label>
-              <input
-                id="description"
-                name="description"
-                type="text"
-                placeholder="Ex.: Salário, mercado, aluguel"
-                required
-              />
+          <section class="card">
+            <div class="card-header">
+              <h3>Filtro do período</h3>
+              <span class="muted" id="periodHint">visão mensal</span>
             </div>
 
-            <div class="row-2">
+            <div class="month-filter">
               <div class="field">
-                <label for="amount">Valor</label>
+                <label for="viewMode">Tipo de visão</label>
+                <select id="viewMode">
+                  <option value="monthly">Mensal</option>
+                  <option value="all">Desde o início</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="monthFilter">Selecionar mês</label>
+                <input id="monthFilter" type="month" />
+              </div>
+
+              <button
+                id="currentMonthBtn"
+                class="secondary-btn compact-btn"
+                type="button"
+              >
+                Mês atual
+              </button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h3>Resumo do período</h3>
+              <span class="muted">receitas x despesas</span>
+            </div>
+
+            <div class="chart-wrap">
+              <canvas id="chartMes"></canvas>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h3 id="formTitle">Novo lançamento</h3>
+              <span class="muted" id="formModeText">cadastro diário</span>
+            </div>
+
+            <form id="transactionForm" class="form-grid">
+              <div class="field">
+                <label>Tipo</label>
+                <div class="segmented">
+                  <button
+                    type="button"
+                    class="type-btn active income"
+                    data-type="receita"
+                  >
+                    Receita
+                  </button>
+                  <button
+                    type="button"
+                    class="type-btn expense"
+                    data-type="despesa"
+                  >
+                    Despesa
+                  </button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="description">Descrição</label>
                 <input
-                  id="amount"
-                  name="amount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0,00"
+                  id="description"
+                  name="description"
+                  type="text"
+                  placeholder="Ex.: Salário, mercado, aluguel"
                   required
                 />
               </div>
 
-              <div class="field">
-                <label for="date">Data</label>
-                <input id="date" name="date" type="date" required />
-              </div>
-            </div>
+              <div class="row-2">
+                <div class="field">
+                  <label for="amount">Valor</label>
+                  <input
+                    id="amount"
+                    name="amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                    required
+                  />
+                </div>
 
-            <div class="row-2">
-              <div class="field">
-                <label for="category">Categoria</label>
-                <select id="category" name="category" required>
-                  <option value="">Selecione</option>
-                  <option>Salário</option>
-                  <option>Freelance</option>
-                  <option>Aluguel</option>
-                  <option>Condomínio</option>
-                  <option>Luz</option>
-                  <option>Internet</option>
-                  <option>Mercado</option>
-                  <option>Transporte</option>
-                  <option>Faculdade</option>
-                  <option>Lazer</option>
-                  <option>Cartão</option>
-                  <option>Outros</option>
-                </select>
+                <div class="field">
+                  <label for="date">Data</label>
+                  <input id="date" name="date" type="date" required />
+                </div>
               </div>
 
-              <div class="field">
-                <label for="paymentMethod">Pagamento</label>
-                <select id="paymentMethod" name="paymentMethod" required>
-                  <option value="">Selecione</option>
-                  <option>Pix</option>
-                  <option>Débito</option>
-                  <option>Crédito</option>
-                  <option>Dinheiro</option>
-                  <option>Transferência</option>
-                </select>
+              <div class="row-2">
+                <div class="field">
+                  <label for="category">Categoria</label>
+                  <select id="category" name="category" required>
+                    <option value="">Selecione</option>
+                    <option>Salário</option>
+                    <option>Freelance</option>
+                    <option>Aluguel</option>
+                    <option>Condomínio</option>
+                    <option>Luz</option>
+                    <option>Internet</option>
+                    <option>Mercado</option>
+                    <option>Transporte</option>
+                    <option>Faculdade</option>
+                    <option>Lazer</option>
+                    <option>Cartão</option>
+                    <option>Outros</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="paymentMethod">Pagamento</label>
+                  <select id="paymentMethod" name="paymentMethod" required>
+                    <option value="">Selecione</option>
+                    <option>Pix</option>
+                    <option>Débito</option>
+                    <option>Crédito</option>
+                    <option>Dinheiro</option>
+                    <option>Transferência</option>
+                  </select>
+                </div>
               </div>
+
+              <div class="form-actions">
+                <button id="submitBtn" class="primary-btn" type="submit">
+                  Salvar lançamento
+                </button>
+                <button
+                  id="cancelEditBtn"
+                  class="secondary-btn hidden"
+                  type="button"
+                >
+                  Cancelar edição
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h3>Últimos lançamentos</h3>
+              <span class="muted" id="transactionCount">0 itens</span>
             </div>
 
-            <div class="form-actions">
-              <button id="submitBtn" class="primary-btn" type="submit">Salvar lançamento</button>
-              <button id="cancelEditBtn" class="secondary-btn hidden" type="button">Cancelar edição</button>
-            </div>
-          </form>
+            <div id="transactionList" class="list"></div>
+          </section>
         </section>
+      </main>
+    </div>
 
-        <section class="card">
-          <div class="card-header">
-            <h3>Últimos lançamentos</h3>
-            <span class="muted" id="transactionCount">0 itens</span>
-          </div>
+    <div id="deleteModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <div class="modal-icon">!</div>
+        <h3>Confirmar exclusão</h3>
+        <p id="deleteModalText">
+          Tem certeza que deseja excluir este lançamento?
+        </p>
 
-          <div id="transactionList" class="list"></div>
-        </section>
-      </section>
-    </main>
-  </div>
-
-  <div id="deleteModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <div class="modal-icon">!</div>
-      <h3>Confirmar exclusão</h3>
-      <p id="deleteModalText">Tem certeza que deseja excluir este lançamento?</p>
-
-      <div class="modal-actions">
-        <button id="cancelDeleteBtn" type="button" class="modal-btn secondary">Cancelar</button>
-        <button id="confirmDeleteBtn" type="button" class="modal-btn danger">Excluir</button>
+        <div class="modal-actions">
+          <button
+            id="cancelDeleteBtn"
+            type="button"
+            class="modal-btn secondary"
+          >
+            Cancelar
+          </button>
+          <button id="confirmDeleteBtn" type="button" class="modal-btn danger">
+            Excluir
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="script.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
