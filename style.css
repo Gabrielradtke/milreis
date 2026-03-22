@@ -196,50 +196,46 @@ body {
   font-size: 12px;
 }
 
-.month-filter {
-  display: grid;
-  gap: 10px;
-}
-
+.month-filter,
 .form-grid {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .field label {
   font-size: 12px;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .field input,
 .field select {
-  width: 100%;
   border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 14px;
-  min-height: 48px;
+  background: var(--surface-soft);
+  min-height: 52px;
   padding: 0 14px;
-  font-size: 15px;
+  border-radius: 16px;
   outline: none;
+  font-size: 14px;
   color: var(--text);
 }
 
 .field input:focus,
 .field select:focus {
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.18);
+  border-color: rgba(37, 99, 235, 0.34);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+  background: white;
 }
 
 .row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .segmented {
@@ -249,14 +245,14 @@ body {
 }
 
 .segmented button {
-  min-height: 48px;
-  border-radius: 14px;
   border: 1px solid var(--border);
-  background: #fff;
+  min-height: 50px;
+  border-radius: 16px;
+  background: var(--surface-soft);
+  color: var(--text);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  color: var(--text);
 }
 
 .segmented button.active.income {
@@ -305,6 +301,17 @@ body {
 
 .hidden {
   display: none !important;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+}
+
+.chart-wrap canvas {
+  width: 100% !important;
+  height: 240px !important;
 }
 
 .list {
@@ -357,7 +364,6 @@ body {
 }
 
 .transaction-info small {
-  color: var(--muted);
   font-size: 12px;
 }
 
@@ -516,15 +522,25 @@ body {
   transform: translateY(-1px);
 }
 
+#monthFilter:disabled,
+#currentMonthBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalUp {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.96);
+    transform: translateY(12px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -541,25 +557,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .topbar {
-    align-items: flex-start;
+  .modal-actions {
+    grid-template-columns: 1fr;
   }
-
-  .topbar-right {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .transaction {
-    align-items: flex-start;
-  }
-
-  .transaction-actions {
-    grid-auto-flow: column;
-  }
-}
-#monthFilter:disabled,
-#currentMonthBtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }

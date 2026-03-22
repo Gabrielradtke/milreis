@@ -5,10 +5,13 @@ const dateInput = document.getElementById("date");
 const monthTitle = document.getElementById("monthTitle");
 const monthFilter = document.getElementById("monthFilter");
 const currentMonthBtn = document.getElementById("currentMonthBtn");
+const viewMode = document.getElementById("viewMode");
 
 const balanceMain = document.getElementById("balanceMain");
 const incomeMain = document.getElementById("incomeMain");
 const expenseMain = document.getElementById("expenseMain");
+const balanceLabel = document.getElementById("balanceLabel");
+const periodHint = document.getElementById("periodHint");
 
 const logoutBtn = document.getElementById("logoutBtn");
 const userAvatar = document.getElementById("userAvatar");
@@ -24,6 +27,21 @@ const deleteModalText = document.getElementById("deleteModalText");
 const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
+const categoryConfig = {
+  "Salário": { color: "#16a34a", icon: "💼" },
+  "Freelance": { color: "#0ea5e9", icon: "🧑‍💻" },
+  "Aluguel": { color: "#10b981", icon: "🏠" },
+  "Condomínio": { color: "#14b8a6", icon: "🏢" },
+  "Luz": { color: "#f59e0b", icon: "💡" },
+  "Internet": { color: "#3b82f6", icon: "🌐" },
+  "Mercado": { color: "#f97316", icon: "🛒" },
+  "Transporte": { color: "#2563eb", icon: "🚗" },
+  "Faculdade": { color: "#06b6d4", icon: "📚" },
+  "Lazer": { color: "#8b5cf6", icon: "🎮" },
+  "Cartão": { color: "#ef4444", icon: "💳" },
+  "Outros": { color: "#6b7280", icon: "📦" },
+};
+
 let currentType = "receita";
 let currentUser = null;
 let transactions = [];
@@ -32,13 +50,11 @@ let transactionIdToDelete = null;
 let editingTransactionId = null;
 let selectedMonth = getCurrentMonthValue();
 let currentViewMode = "monthly";
+let chartMes = null;
 
 dateInput.value = getToday();
 monthFilter.value = selectedMonth;
-
-const balanceLabel = setupBalanceLabel();
-const periodHint = setupPeriodHint();
-const viewMode = setupViewModeSelect();
+viewMode.value = currentViewMode;
 
 auth.onAuthStateChanged(async (user) => {
   if (!user) {
@@ -49,6 +65,7 @@ auth.onAuthStateChanged(async (user) => {
   currentUser = user;
   setUserAvatar(user);
   await ensureUserProfile(user);
+  updateViewModeUI();
   listenTransactions();
 });
 
@@ -128,8 +145,9 @@ form.addEventListener("submit", async (event) => {
       monthFilter.value = selectedMonth;
     }
 
-    if (currentViewMode !== "all") {
-      updateViewModeUI();
+    if (currentViewMode === "monthly") {
+      applyMonthFilter();
+      renderAll();
     }
   } catch (error) {
     console.error("Erro ao salvar lançamento:", error);
@@ -180,76 +198,13 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-function setupBalanceLabel() {
-  const heroCardLabel = document.querySelector(".hero-card small");
-  if (heroCardLabel) {
-    heroCardLabel.textContent = "Saldo geral";
-    heroCardLabel.id = "balanceLabel";
-    return heroCardLabel;
-  }
-
-  return {
-    textContent: "",
-  };
-}
-
-function setupPeriodHint() {
-  const filterCard = monthFilter.closest(".card");
-  const muted = filterCard?.querySelector(".card-header .muted");
-
-  if (muted) {
-    muted.textContent = "visão mensal";
-    muted.id = "periodHint";
-    return muted;
-  }
-
-  return {
-    textContent: "",
-  };
-}
-
-function setupViewModeSelect() {
-  let existing = document.getElementById("viewMode");
-  if (existing) return existing;
-
-  const monthFilterWrapper = monthFilter.closest(".month-filter");
-  const monthField = monthFilter.closest(".field");
-
-  const field = document.createElement("div");
-  field.className = "field";
-  field.innerHTML = `
-    <label for="viewMode">Tipo de visão</label>
-    <select id="viewMode" name="viewMode">
-      <option value="monthly">Mensal</option>
-      <option value="all">Desde o início</option>
-    </select>
-  `;
-
-  if (monthFilterWrapper) {
-    monthFilterWrapper.insertBefore(field, monthField || monthFilterWrapper.firstChild);
-  }
-
-  existing = document.getElementById("viewMode");
-  if (existing) {
-    existing.value = currentViewMode;
-  }
-
-  return existing;
-}
-
 function updateViewModeUI() {
   const isAll = currentViewMode === "all";
 
   monthFilter.disabled = isAll;
   currentMonthBtn.disabled = isAll;
 
-  monthFilter.style.opacity = isAll ? "0.55" : "1";
-  currentMonthBtn.style.opacity = isAll ? "0.55" : "1";
-  currentMonthBtn.style.cursor = isAll ? "not-allowed" : "pointer";
-
-  if (periodHint) {
-    periodHint.textContent = isAll ? "Desde o início" : "Visão mensal";
-  }
+  periodHint.textContent = isAll ? "desde o início" : "visão mensal";
 }
 
 function listenTransactions() {
@@ -433,11 +388,8 @@ function renderSummary() {
     .filter((item) => item.type === "despesa")
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
+  balanceLabel.textContent = "Saldo geral";
   balanceMain.textContent = formatCurrency(totalBalance);
-
-  if (balanceLabel) {
-    balanceLabel.textContent = "Saldo geral";
-  }
 
   if (currentViewMode === "all") {
     incomeMain.textContent = formatCurrency(totalIncome);
@@ -480,13 +432,18 @@ function renderTransactions() {
       const valueClass = item.type === "receita" ? "income" : "expense";
       const signal = item.type === "receita" ? "+" : "-";
 
+      const categoryName = item.category || "Outros";
+      const categoryMeta = categoryConfig[categoryName] || categoryConfig["Outros"];
+
       return `
         <article class="transaction">
           <div class="icon ${valueClass}">${icon}</div>
 
           <div class="transaction-info">
             <strong>${item.description}</strong>
-            <small>${item.category} • ${formatDate(item.date)}</small>
+            <small style="color: ${categoryMeta.color};">
+              ${categoryMeta.icon} ${categoryName} • ${formatDate(item.date)}
+            </small>
           </div>
 
           <div class="transaction-value">
@@ -521,10 +478,52 @@ function renderTransactions() {
     .join("");
 }
 
+function renderChart() {
+  const canvas = document.getElementById("chartMes");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  const receitas = filteredTransactions
+    .filter((item) => item.type === "receita")
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  const despesas = filteredTransactions
+    .filter((item) => item.type === "despesa")
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  if (chartMes) {
+    chartMes.destroy();
+  }
+
+  chartMes = new Chart(canvas, {
+    type: "doughnut",
+    data: {
+      labels: ["Receitas", "Despesas"],
+      datasets: [
+        {
+          data: [receitas, Math.abs(despesas)],
+          backgroundColor: ["#2e7d5b", "#b04a4a"],
+          borderWidth: 2,
+          borderColor: "#ffffff",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+      },
+    },
+  });
+}
+
 function renderAll() {
   updateViewModeUI();
   renderSummary();
   renderTransactions();
+  renderChart();
 }
 
 window.editTransaction = editTransaction;
